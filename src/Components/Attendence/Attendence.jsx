@@ -90,9 +90,8 @@ class Attendence extends Component {
                     filteredAll = attendences;
                 } else {
                     filteredAll = filteredAll.filter((item) => {
-                        const passed = item.resource.first_name.toLowerCase().search(value.toLowerCase()) !== -1 
-                                        || item.resource.last_name.toLowerCase().search(value.toLowerCase()) !== -1;
-                        return passed;
+                        const {first_name, last_name} = item.resource;
+                        return this.isPassed(first_name, last_name, searchAll)
                       });
                 }
                 break;
@@ -102,9 +101,9 @@ class Attendence extends Component {
                     filteredIn = attendences;
                 } else {
                     filteredIn = filteredIn.filter((item) => {
-                        const passed = item.resource.first_name.toLowerCase().search(value.toLowerCase()) !== -1 
-                                        || item.resource.last_name.toLowerCase().search(value.toLowerCase()) !== -1;
-                        return passed;
+                        const {first_name, last_name} = item.resource;
+                        return this.isPassed(first_name, last_name, searchIn);
+
                       });
                 }
                 break;
@@ -114,9 +113,9 @@ class Attendence extends Component {
                     filteredOut = attendences;
                 } else {
                     filteredOut = filteredOut.filter((item) => {
-                        const passed = item.resource.first_name.toLowerCase().search(value.toLowerCase()) !== -1 
-                                        || item.resource.last_name.toLowerCase().search(value.toLowerCase()) !== -1;
-                        return passed;
+                        const {first_name, last_name} = item.resource;
+                        return this.isPassed(first_name, last_name, searchOut);
+
                       });
                 }
                 break;
@@ -125,6 +124,11 @@ class Attendence extends Component {
         }
         this.setState({searchAll, searchIn, searchOut, filteredAll, filteredIn, filteredOut})
 
+    }
+    isPassed(firstValue, secondeValue, targetValue) {
+        const passed = firstValue.toLowerCase().search(targetValue.toLowerCase()) !== -1 
+                        || secondeValue.toLowerCase().search(targetValue.toLowerCase()) !== -1;
+        return passed;
     }
     render() {
         const {
