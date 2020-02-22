@@ -14,24 +14,28 @@ import {
 import AttendenceCard from '../AttendenceCard/AttendenceCard';
 
 class Attendence extends Component {
-    state = {
-        attendences: [],
-        filteredAll: [],
-        filteredAIn: [],
-        filteredAOut: [],
-        isAllSearch: false,
-        isCheckedInSearch: false,
-        isCheckedOutSearch: false,
-        searchAll: "",
-        searchIn: "",
-        searchOut: "",
+    constructor (props) {
+        super(props);
+        this.state = {
+            attendences: [],
+            filteredAll: [],
+            filteredIn: [],
+            filteredOut: [],
+            isAllSearch: false,
+            isCheckedInSearch: false,
+            isCheckedOutSearch: false,
+            searchAll: "",
+            searchIn: "",
+            searchOut: "",
+        }
+        this.onSearchChange = this.onSearchChange.bind(this);
     }
 
 
     async componentDidMount() {
         const attendences = await http.get('data.json')
             .then(res => res.data.data);
-        this.setState({ attendences, filteredAll: attendences, filteredAIn: attendences, filteredAOut: attendences });
+        this.setState({ attendences, filteredAll: attendences, filteredIn: attendences, filteredOut: attendences });
     }
 
     handleCheckIn(id) {
@@ -40,7 +44,7 @@ class Attendence extends Component {
             const _attendence = attendence.id === id ? { ...attendence, checked_in: "true" } : { ...attendence };
             return _attendence;
         });
-        this.setState({ attendences: _attendces, filteredAll: _attendces, filteredAIn: _attendces, filteredAOut: _attendces });
+        this.setState({ attendences: _attendces, filteredAll: _attendces, filteredIn: _attendces, filteredOut: _attendces });
     }
 
     handleCheckOut(id) {
@@ -49,14 +53,14 @@ class Attendence extends Component {
             const _attendence = attendence.id === id ? { ...attendence, checked_out: "true" } : { ...attendence };
             return _attendence;
         });
-        this.setState({ attendences: _attendces, filteredAll: _attendces, filteredAIn: _attendces, filteredAOut: _attendces });
+        this.setState({ attendences: _attendces, filteredAll: _attendces, filteredIn: _attendces, filteredOut: _attendces });
     }
 
     handleDelete(id) {
         const { attendences } = this.state;
         const index = attendences.findIndex(a => a.id === id)
         attendences.splice(index, 1);
-        this.setState({ attendences, filteredAll: attendences, filteredAIn: attendences, filteredAOut: attendences });
+        this.setState({ attendences, filteredAll: attendences, filteredIn: attendences, filteredOut: attendences });
 
     }
 
@@ -77,32 +81,56 @@ class Attendence extends Component {
         }
     }
     onSearchChange(e) {
-        console.log(this.state);
-        const { searchAll, searchIn, searchOut, isAllSearch, isCheckedInSearch, isCheckedOutSearch } = this.state;
+        let { attendences, searchAll, searchIn, searchOut, filteredAll, filteredIn, filteredOut } = this.state;
         const { name, value } = e.currentTarget;
         switch (name) {
             case 'all':
                 searchAll = value;
-                isAllSearch = true;
+                if(searchAll === "") {
+                    filteredAll = attendences;
+                } else {
+                    filteredAll = filteredAll.filter((item) => {
+                        const passed = item.resource.first_name.toLowerCase().search(value.toLowerCase()) !== -1 
+                                        || item.resource.last_name.toLowerCase().search(value.toLowerCase()) !== -1;
+                        return passed;
+                      });
+                }
                 break;
             case 'in':
                 searchIn = value;
-                isCheckedInSearch = true;
+                if(searchIn === "") {
+                    filteredIn = attendences;
+                } else {
+                    filteredIn = filteredIn.filter((item) => {
+                        const passed = item.resource.first_name.toLowerCase().search(value.toLowerCase()) !== -1 
+                                        || item.resource.last_name.toLowerCase().search(value.toLowerCase()) !== -1;
+                        return passed;
+                      });
+                }
                 break;
             case 'out':
                 searchOut = value;
-                isCheckedOutSearch = true;
+                if(searchIn === "") {
+                    filteredOut = attendences;
+                } else {
+                    filteredOut = filteredOut.filter((item) => {
+                        const passed = item.resource.first_name.toLowerCase().search(value.toLowerCase()) !== -1 
+                                        || item.resource.last_name.toLowerCase().search(value.toLowerCase()) !== -1;
+                        return passed;
+                      });
+                }
                 break;
             default:
                 break;
         }
+        this.setState({searchAll, searchIn, searchOut, filteredAll, filteredIn, filteredOut})
 
     }
     render() {
         const {
             filteredAll,
-            filteredAIn,
-            filteredAOut,
+            filteredIn,
+            filteredOut,
             isAllSearch,
             isCheckedInSearch,
             isCheckedOutSearch,
@@ -157,7 +185,7 @@ class Attendence extends Component {
                                             <SearchIcon onClick={() => this.handleClickSearchIcon('in')}></SearchIcon>
                                         </AttendancesSearch>
                                         <AttendenceCardsGroup>
-                                            {filteredAIn.map(attendence => {
+                                            {filteredIn.map(attendence => {
                                                 const { id } = attendence;
                                                 const { first_name, last_name, email, phone_number, iqama_number, gender, profile_picture } = attendence.resource;
                                                 const { checked_in, checked_out } = attendence;
@@ -191,7 +219,7 @@ class Attendence extends Component {
                                             <SearchIcon onClick={() => this.handleClickSearchIcon('out')}></SearchIcon>
                                         </AttendancesSearch>
                                         <AttendenceCardsGroup>
-                                            {filteredAOut.map(attendence => {
+                                            {filteredOut.map(attendence => {
                                                 const { id } = attendence;
                                                 const { first_name, last_name, email, phone_number, iqama_number, gender, profile_picture } = attendence.resource;
                                                 const { checked_in, checked_out } = attendence;
