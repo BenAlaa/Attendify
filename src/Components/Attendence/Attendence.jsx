@@ -109,7 +109,7 @@ class Attendence extends Component {
                 break;
             case 'out':
                 searchOut = value;
-                if(searchIn === "") {
+                if(searchOut === "") {
                     filteredOut = attendences;
                 } else {
                     filteredOut = filteredOut.filter((item) => {
