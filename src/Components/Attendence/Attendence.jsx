@@ -257,5 +257,4 @@ class Attendence extends Component {
         );
     }
 }
-
 export default Attendence;
